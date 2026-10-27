@@ -1,0 +1,6 @@
+CREATING SERVER FOLDER :-	 
+
+npm init -y => It automatically creates a default `package.json` file for a Node.js project without prompting you for input.
+
+command to install express js-
+npm install express

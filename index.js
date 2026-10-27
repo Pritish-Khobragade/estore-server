@@ -1,0 +1,35 @@
+const express = require('express');
+const app = express();
+const mysql = require('mysql2');
+const PORT = process.env.PORT || 5001;
+
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME || 'estore',
+    port: process.env.DB_PORT || 3306,
+    multipleStatements: true  //Allows us to have multiple query statements.
+});
+
+app.get('/', (req, res) => {
+    pool.getConnection((err, connection) => {
+        if (err) {
+            res.status(500).send(err);
+        } else {
+          pool.query('select * from categories',(error, categories) => {
+            if(error) {
+                res.status(500).send(error);
+            }
+            else{
+                res.status(200).send(categories);
+            }
+          });
+        }
+    });
+});
+
+const server = app.listen(PORT, () => {
+    console.log('App is running on the port - 5001');
+
+}); 
