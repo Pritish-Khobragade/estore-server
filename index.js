@@ -6,7 +6,7 @@ const PORT = 5001;
 const pool = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: process.env.DB_PASSWORD,
+    password: 'root',
     database: 'estore',
     port: 3306,
     multipleStatements: true    //Allows us to have multiple query statements.
