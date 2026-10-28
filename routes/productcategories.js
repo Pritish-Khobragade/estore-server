@@ -1,15 +1,8 @@
 const express = require('express');
 const productCategories = express.Router();
-const mysql = require('mysql2');
+const pool = require('./shared/pool');
+const products = require('./products');
 
-const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'estore',
-    port: 3306,
-    multipleStatements: true    //Allows us to have multiple query statements.
-});
 
 productCategories.get('/', (req, res) => {
     pool.query(
@@ -23,5 +16,7 @@ productCategories.get('/', (req, res) => {
             }
         });
 });
+
+
 
 module.exports = productCategories;
