@@ -57,8 +57,11 @@ products.get('/', (req, res) => {
     }
 
     if (typeof keyword === 'string' && keyword.trim()) {
-        query += queryParams.length > 0 ? ' and keywords like ?'    : ' where keywords like ?';
-        queryParams.push(`%${keyword.trim()}%`);
+        query += queryParams.length > 0
+            ? ' and (products.product_name like ? or products.product_description like ?)'
+            : ' where (products.product_name like ? or products.product_description like ?)';
+        const keywordPattern = `%${keyword.trim()}%`;
+        queryParams.push(keywordPattern, keywordPattern);
     }
 
     pool.query(query, queryParams, (error, products) => {
