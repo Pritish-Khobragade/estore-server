@@ -3,15 +3,65 @@ const products = express.Router();
 const pool = require('./shared/pool');
 
 products.get('/', (req, res) => {
-    var mainCategoryId = req.query.mainCategoryId;
-    var subCategoryId = req.query.subCategoryId || req.query.subcategoryid;
+    const rawSubCategoryId = req.query.subCategoryId || req.query.subcategoryid;
+    const rawMainCategoryId = req.query.mainCategoryId;
+    const rawCategoryId = rawSubCategoryId || rawMainCategoryId;
+    const categoryId = Number(rawCategoryId);
+    var keyword = req.query.keyword;
 
-    let query = 'select * from products';
-    if (subCategoryId) {
-        query = `select products.* from products, categories where products.category_id = categories.id and categories.id = ${subCategoryId}`;
+    const rawProductFor = req.query.productFor;
+    let productFor;
+
+    if (rawProductFor !== undefined) {
+        if (typeof rawProductFor !== 'string') {
+            return res.status(400).send('Invalid productFor value');
+        }
+
+        switch (rawProductFor.trim().toLowerCase()) {
+            case 'men':
+                productFor = 'Men';
+                break;
+            case 'women':
+                productFor = 'Women';
+                break;
+            case 'kids':
+            case 'children':
+                productFor = 'Kids';
+                break;
+            default:
+                return res.status(400).send('productFor must be Men, Women, or Kids');
+        }
     }
 
-    pool.query(query, (error, products) => {
+    if (rawCategoryId !== undefined && (!Number.isInteger(categoryId) || categoryId <= 0)) {
+        return res.status(400).send('Category id must be a positive integer');
+    }
+
+    let query = 'select * from products';
+    let queryParams = [];
+    if (rawSubCategoryId) {
+        query = 'select products.* from products where products.category_id = ?';
+        queryParams = [categoryId];
+    } else if (rawMainCategoryId) {
+        query = `select distinct products.* from products
+            left join categories on products.category_id = categories.id
+            where (products.category_id = ? or categories.parent_category = ?)`;
+        queryParams = [categoryId, categoryId];
+    }
+
+    if (productFor !== undefined) {
+        query += queryParams.length > 0
+            ? ' and lower(trim(products.product_for)) = lower(?)'
+            : ' where lower(trim(products.product_for)) = lower(?)';
+        queryParams.push(productFor);
+    }
+
+    if (typeof keyword === 'string' && keyword.trim()) {
+        query += queryParams.length > 0 ? ' and keywords like ?'    : ' where keywords like ?';
+        queryParams.push(`%${keyword.trim()}%`);
+    }
+
+    pool.query(query, queryParams, (error, products) => {
         if (error) {
             res.status(500).send(error);
         } else if (products.length === 0) {
