@@ -76,12 +76,16 @@ products.get('/', (req, res) => {
 });
 
 products.get('/:id', (req, res) => {
-    let id = req.params.id;
-    pool.query('select * from products where id = ' + id, (error, products) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).send('Product id must be a positive integer');
+    }
+
+    pool.query('select * from products where id = ?', [id], (error, products) => {
         if (error) {
             res.status(500).send(error);
         } else {
-            res.status(200).send(products);
+            res.status(200).send(products[0] ?? null);
         }
     })
 })
