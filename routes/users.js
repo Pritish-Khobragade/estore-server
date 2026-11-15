@@ -17,7 +17,7 @@ users.post('/signup', (req, res) => {
             }
 
             if (resultCount[0].count > 0) {
-                return res.status(200).send('Email already exist');
+                return res.status(200).send({ message: 'Email already exists'});
             }
 
             bcryptjs.hash(password, 10)
@@ -25,12 +25,15 @@ users.post('/signup', (req, res) => {
                     const query = `INSERT INTO users (email, firstName, lastName, address, city, state, pin, password)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-                    pool.query(query, [email, firstName, lastName, address, city, state, pin, hashedPassword], (insertError) => {
-                        if (insertError) {
-                            return res.status(500).send(insertError);
+                    pool.query(query, [email, firstName, lastName, address, city, state, pin, hashedPassword], (error, result) => {
+                        if (error) {
+                            return res.status(401).send({
+                                error: error.code,
+                                message: error.message,
+                            });
                         }
 
-                        return res.status(201).send('success');
+                        return res.status(201).send({ message: 'success' });
                     });
                 })
                 .catch((hashError) => {
