@@ -51,7 +51,7 @@ try {
     let email = req.body.email;
     let password = req.body.password;
 
-    pool.query(`select * from users where email like '${email}'`,(error, result)=>{
+    pool.query('SELECT * FROM users WHERE email = ?', [email], (error, result)=>{
         if(error) {
             res.status(500).send({
                 error: error.code,
@@ -73,6 +73,8 @@ try {
                         );
                         res.status(200).send({
                             token: token,
+                            expiresIn: '1h',
+                            expiresInSeconds: 3600
                         });
                     }else{
                         res.status(401).send({
