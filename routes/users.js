@@ -51,7 +51,10 @@ try {
     let email = req.body.email;
     let password = req.body.password;
 
-    pool.query('SELECT * FROM users WHERE email = ?', [email], (error, result)=>{
+    pool.query(
+        'SELECT id, email, password, firstName AS firstName, lastName AS lastName, address, city, state, pin FROM users WHERE email = ?',
+        [email],
+        (error, result)=>{
         if(error) {
             res.status(500).send({
                 error: error.code,
@@ -73,8 +76,15 @@ try {
                         );
                         res.status(200).send({
                             token: token,
-                            expiresIn: '1h',
-                            expiresInSeconds: 3600
+                            expiresInSeconds: 3600,
+                            user:{
+                                firstName: result[0].firstName,
+                                lastName: result[0].lastName,
+                                address: result[0].address,
+                                city: result[0].city,
+                                state: result[0].state,
+                                pin: result[0].pin,
+                            }
                         });
                     }else{
                         res.status(401).send({
