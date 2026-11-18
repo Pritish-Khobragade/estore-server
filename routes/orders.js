@@ -137,6 +137,7 @@ orders.get('/orderproducts', checkToken, (req, res) => {
         }
 
         const query = `SELECT orderDetails.productId, products.product_name AS productName,
+            products.product_img AS productImage,
             orderDetails.qty, orderDetails.price, orderDetails.amount
             FROM orderdetails AS orderDetails
             JOIN products ON orderDetails.productId = products.id
@@ -156,6 +157,7 @@ orders.get('/orderproducts', checkToken, (req, res) => {
                 orderDetails.push({
                     productId: orderProduct.productId,
                     productName: orderProduct.productName,
+                    productImage: orderProduct.productImage,
                     qty: orderProduct.qty,
                     price: orderProduct.price,
                     amount: orderProduct.amount
