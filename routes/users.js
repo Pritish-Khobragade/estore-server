@@ -71,7 +71,7 @@ try {
                                 id: result[0].id,
                                 email: result[0].email,
                             },
-                            'estore-secrete-key',
+                            'estore-secret-key',
                             { expiresIn: '1h' }
                         );
                         res.status(200).send({
