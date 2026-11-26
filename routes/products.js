@@ -90,4 +90,4 @@ products.get('/:id', (req, res) => {
     })
 })
 
-module.exports = products;
+module.exports =  products;
